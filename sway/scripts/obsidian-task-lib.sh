@@ -1,3 +1,9 @@
+# ─────────────────────────────────────────────
+# obsidian-task-lib.sh
+# Library of overlapping functions between scripts.
+# ─────────────────────────────────────────────
+
+
 OBSI_TASK_DIR="$HOME/Documents/Obsidian/TODO"
 
 declare -a TITLES STATUSES PRIORITIES SCHEDULED TIME_ESTIMATES COMPLETED_DATES PROJECTS BLOCKED_BY HAS_CHILD
