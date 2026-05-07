@@ -1,0 +1,64 @@
+@theme "~/dotfiles/rofi/config.rasi"
+
+configuration {
+    font: "sans 28";
+    show-icons: true;
+    display-drun: "Search Applications";
+    drun-display-format: "{name}";
+}
+* {
+    background-color: @background;
+}
+window {
+    fullscreen: true;
+    background-color: @background;
+    padding: 0;
+}
+mainbox {
+    background-color: transparent;
+    children: [ inputbar, listview ];
+    spacing: 20px;
+    padding: 100px 200px;
+}
+inputbar {
+    border: 0 0 3px 0;
+    padding: 30px 40px;
+    spacing: 20px;
+    children: [ prompt, entry ];
+}
+prompt {
+    background-color: transparent;
+}
+entry {
+    background-color: transparent;
+    placeholder: "Type to search...";
+}
+listview {
+    background-color: transparent;
+    columns: 3;
+    lines: 4;
+    spacing: 20px;
+    scrollbar: false;
+    layout: vertical;
+}
+element {
+    padding: 30px 20px;
+    spacing: 20px;
+    border-radius: 12px;
+    orientation: vertical;
+    children: [ element-icon, element-text ];
+}
+element selected {
+    border: 2px solid;
+}
+element-icon {
+    background-color: transparent;
+    size: 96px;
+    horizontal-align: 0.5;
+}
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+    horizontal-align: 0.5;
+    vertical-align: 0.5;
+}

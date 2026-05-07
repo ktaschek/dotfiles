@@ -1,0 +1,164 @@
+# Essentials
+exec_always swaymsg output eDP-1 scale 1
+exec_always autotiling
+exec waybar
+exec dunst
+exec nm-applet
+exec redshift
+
+exec export GDK_DPI_SCALE=1
+exec export GDK_BACKEND=wayland 
+exec export QT_SCALE_FACTOR=1
+exec export QT_QPA_PLATFORM=wayland
+exec_always systemctl --user import-environment XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+
+# MACROS
+
+set $term kitty
+set $menu rofi -show drun -show-icons
+#set $open-tabs rofi -modi combi -combi-mod window -show combi -show-icons -matching 
+set $open-tabs rofi -show window -no-config -show-icons -theme "~/dotfiles/rofi/show_open_windows.rasi"
+set $mod Mod4
+
+# KEY BINDS
+bindsym $mod+d exec $menu
+bindsym $mod+Tab exec $open-tabs
+bindsym $mod+c kill
+bindsym $mod+q exec $term
+bindsym $mod+Shift+r exec swaymsg reload && killall waybar && waybar
+
+#--floating window interaction
+floating_modifier $mod normal
+
+#--move focus
+bindsym $mod+Left focus left
+bindsym $mod+Right focus right
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+
+#--move position
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Right move right
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+
+#--layout
+bindsym $mod+f fullscreen
+bindsym $mod+b splith
+bindsym $mod+v splitv
+workspace_layout default
+
+
+bindsym $mod+a layout default
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+
+#--switch to workspace
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+#--move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+
+#--floating
+bindsym $mod+Shift+space floating toggle
+bindsym $mod+space focus mode_toggle
+
+#--resize
+mode "resize" {
+
+    bindsym Left resize shrink width 10px
+    bindsym Down resize grow height 10px
+    bindsym Up resize shrink height 10px
+    bindsym Right resize grow width 10px
+
+    # Return to default mode
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+#--util
+
+#--bar
+#bar{
+#	swaybar_command waybar
+#}
+
+#--screenshots
+bindsym $mod+shift+s exec grim -g "$(slurp)" - | swappy -f -
+
+
+#--Special keys to adjust volume via PulseAudio
+bindsym --locked XF86AudioMute exec pactl set-sink-mute \@DEFAULT_SINK@ toggle && pkill -SIGRTMIN+10 i3blocks
+bindsym --locked XF86AudioLowerVolume exec pactl set-sink-volume \@DEFAULT_SINK@ -1% && pkill -SIGRTMIN+10 i3blocks
+bindsym --locked XF86AudioRaiseVolume exec pactl set-sink-volume \@DEFAULT_SINK@ +1% && pkill -SIGRTMIN+10 i3blocks
+bindsym --locked XF86AudioMicMute exec pactl set-source-mute \@DEFAULT_SOURCE@ toggle
+#--Special keys to adjust brightness via brightnessctl
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+#--Special key to take a screenshot with grim
+bindsym $mod+Print exec grim
+
+#--mouse input
+input "type:touchpad" {
+	natural_scroll enabled
+	pointer_accel 0.5
+}
+
+input type:pointer {
+	accel_profile "flat"
+	pointer_accel 0.5
+}
+
+
+# STYLES
+
+#--bg
+output "*" bg $HOME/dotfiles/sway/bgs/.wallpaper fill
+
+#--font
+font pango:JetBrains Mono 12
+exec_always gsettings set org.gnome.desktop.interface text-scaling-factor 1
+exec_always export QT_SCALE_FACTOR=1
+
+#--gap
+gaps inner 6px
+gaps outer 4px
+
+#--border
+default_border pixel 1px
+default_floating_border pixel 1px
+
+#--border color
+
+# SWAYFX
+
+#animation_duration_ms 150
+
+blur enable
+blur_xray disable
+blur_passes 3
+blur_radius 3
+
+corner_radius 5
+
+shadows disable
+
