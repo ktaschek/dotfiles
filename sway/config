@@ -1,6 +1,6 @@
 # Essentials
 exec_always swaymsg output eDP-1 scale 1
-exec_always autotiling
+exec_always autotiling -l 2 -sr 1.3
 exec waybar
 exec dunst
 exec nm-applet
@@ -145,13 +145,23 @@ exec_always export QT_SCALE_FACTOR=1
 
 #--gap
 gaps inner 6px
-gaps outer 4px
+gaps outer 20px
 
 #--border
 default_border pixel 1px
 default_floating_border pixel 1px
 
 #--border color
+
+#--dim inactive
+default_dim_inactive 0.2
+
+#--layer effects
+
+layer_effects "waybar" {
+    blue enable;
+    blue_xray disable;
+}
 
 # SWAYFX
 

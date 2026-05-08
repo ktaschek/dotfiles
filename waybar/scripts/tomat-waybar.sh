@@ -86,7 +86,7 @@ done
 
 # ── Build output string ────────────────────────────────────────────────────────
 
-OUTPUT_TEXT="${PHASE} | ${TIME} | ${BAR}  ${CTRL_ICON}  ⏹ |"
+OUTPUT_TEXT="${PHASE} | ${BAR} | ${CTRL_ICON}  ⏹ "
 
 # ── Emit waybar JSON ───────────────────────────────────────────────────────────
 printf '{"text": "%s", "tooltip": "%s", "class": "%s", "percentage": %s}\n' \
