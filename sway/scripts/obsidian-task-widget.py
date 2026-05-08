@@ -17,7 +17,7 @@ from textual            import on
 DUMP_SCRIPT   = os.path.expanduser("~/dotfiles/sway/scripts/obsidian-task-lib.sh")
 TASKS_DIR     = os.path.expanduser("~/Documents/Obsidian/TODO/Tasks")
 REFRESH_SECS  = 300
-DUE_WINDOW    = timedelta(days=1)   # ← adjust to expand range
+DUE_WINDOW    = timedelta(days=1)
 
 PRIORITY_ICON  = {"high": "▴", "normal": "▸", "low": "▾"}
 PRIORITY_COLOR = {"high": "#ed8274", "normal": "#fad07b", "low": "#a6cc70"}
@@ -45,12 +45,16 @@ def load_tasks() -> list[dict]:
 
 def should_show(task: dict, today: date, cutoff: date, shown_titles: set) -> bool:
     status    = task["status"]
+    due = (task["due"] or "")[:10]
     scheduled = (task["scheduled"] or "")[:10]
     sched_date = date.fromisoformat(scheduled) if scheduled else None
+    due = date.fromisoformat(due) if due else None
 
-    # done tasks: only show if overdue (past due date and not completed in time)
     if status == "done":
-        return bool(sched_date and sched_date < today)
+        return bool(due and due > today)
+
+    if due and due < today:
+        return True
 
     # always show overdue unfinished tasks
     if sched_date and sched_date < today:
@@ -62,6 +66,9 @@ def should_show(task: dict, today: date, cutoff: date, shown_titles: set) -> boo
 
     # show if due within window
     if sched_date and sched_date <= cutoff:
+        return True
+
+    if due and due <= cutoff:
         return True
 
     # show if parent is shown (child follows parent)
@@ -80,7 +87,7 @@ def build_rows(tasks: list[dict]) -> list[dict]:
 
     def sort_key(t):
         order = {"in-progress": 0, "open": 1, "done": 2}.get(t["status"], 1)
-        return (order, t["scheduled"] or "9999-99-99")
+        return (order, t["due"] or "9999-99-99")
 
     # first pass — determine which titles are visible so children can check
     shown_titles: set[str] = set()
@@ -96,7 +103,9 @@ def build_rows(tasks: list[dict]) -> list[dict]:
     def add_task(task: dict, depth: int):
         scheduled  = (task["scheduled"] or "")[:10]
         sched_date = date.fromisoformat(scheduled) if scheduled else None
-        overdue    = bool(sched_date and sched_date < today)
+        due  = (task["due"] or "")[:10]
+        due_date = date.fromisoformat(due) if due else None
+        overdue    = bool((sched_date and sched_date < today) or (due_date and due_date < today))
         rows.append({
             "task":      task,
             "depth":     depth,
@@ -278,7 +287,7 @@ class TaskWidget(App):
 
     def on_mount(self):
         table = self.query_one(DataTable)
-        table.add_columns("  ", "Task", "Due", "Est")
+        table.add_columns("  ", "Task", "Scheduled", "Due", "Est")
         self._load_and_refresh()
         self.set_interval(REFRESH_SECS, self._load_and_refresh)
 
@@ -310,6 +319,7 @@ class TaskWidget(App):
 
             title_text = f"{indent}{arrow}{s_icon}{task['title']}"
             sched_text = row["scheduled"] or "no date"
+            due_text = task["due"] or "no date"
             est_text   = f"~{task['timeEstimate']}m" if task["timeEstimate"] else ""
 
             # color logic
@@ -338,10 +348,13 @@ class TaskWidget(App):
                     title_render = f"{indent}[{ARROW_COLOR}]↳ [/]{s_icon}{task['title']}"
                 sched_render = sched_text
 
+            sched_render = sched_text
+            due_render = due_text
             table.add_row(
                 p_icon_r,
                 title_render,
                 sched_render,
+                due_render,
                 f"[dim]{est_text}[/]",
             )
 

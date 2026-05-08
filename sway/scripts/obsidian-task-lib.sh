@@ -6,7 +6,7 @@
 
 OBSI_TASK_DIR="$HOME/Documents/Obsidian/TODO"
 
-declare -a TITLES STATUSES PRIORITIES SCHEDULED TIME_ESTIMATES COMPLETED_DATES PROJECTS BLOCKED_BY HAS_CHILD
+declare -a TITLES STATUSES PRIORITIES SCHEDULED TIME_ESTIMATES COMPLETED_DATES PROJECTS HAS_CHILD DUE_DATES
 declare -a CONTEXTS
 declare -a TAGS
 declare -A CHILDREN_OF
@@ -25,10 +25,10 @@ parse_task() {
     TIME_ESTIMATES[$index]=""
     COMPLETED_DATES[$index]=""
     PROJECTS[$index]=""
-    BLOCKED_BY[$index]=""
     CONTEXTS[$index]=""
     TAGS[$index]=""
     HAS_CHILD[$index]=0
+    DUE_DATES[$index]=""
 
     local in_tags=0
     local in_contexts=0
@@ -66,9 +66,9 @@ parse_task() {
                 status)        STATUSES[$index]="$val" ;;
                 priority)      PRIORITIES[$index]="$val" ;;
                 scheduled)     SCHEDULED[$index]="$val" ;;
+                due)           DUE_DATES[$index]="$val" ;;
                 timeEstimate)  TIME_ESTIMATES[$index]="$val" ;;
                 completedDate) COMPLETED_DATES[$index]="$val" ;;
-                blocked_by)    BLOCKED_BY[$index]=true;;
                 tags)          in_tags=1 ;;
                 projects)      in_projects=1 ;;
                 context)       in_contexts=1;;
@@ -157,14 +157,15 @@ dump_json() {
     echo "["
     local first=1
     for i in "${!TITLES[@]}"; do
-        [[ "${STATUSES[$i]}" == "done" ]] && continue
+        # [[ "${STATUSES[$i]}" == "done" ]] && continue
         [[ $first -eq 0 ]] && echo ","
         first=0
-        printf '{"idx":%d,"title":%s,"status":%s,"priority":%s,"scheduled":%s,"timeEstimate":%s,"project":%s,"hasChild":%d}' \
+        printf '{"idx":%d,"title":%s,"status":%s,"priority":%s,"due":%s,"scheduled":%s,"timeEstimate":%s,"project":%s,"hasChild":%d}' \
             "$i" \
             "$(echo "${TITLES[$i]}"    | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
             "$(echo "${STATUSES[$i]}"  | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
             "$(echo "${PRIORITIES[$i]}"| python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
+            "$(echo "${DUE_DATES[$i]}"| python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
             "$(echo "${SCHEDULED[$i]}" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
             "$(echo "${TIME_ESTIMATES[$i]}" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
             "$(echo "${PROJECTS[$i]}"  | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read().strip()))')" \
