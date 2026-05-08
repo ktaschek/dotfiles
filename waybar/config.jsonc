@@ -28,7 +28,7 @@
   "modules-center": ["sway/workspaces"],
   "modules-right": [
     "group/tray-expander",
-    "custom/devchron",
+    "custom/tomat",
     "backlight",
     "bluetooth",
     "pulseaudio#output",
@@ -63,25 +63,14 @@
    "sway/window": {
     "max-length": 55,
   },
-  "custom/devchron": {
-    "exec": "jq -r '.phase + \" \" + .time_remaining' /home/ktasc/.cache/devchron/status.json 2>/dev/null || echo 'inactive'",
-    "interval": 1,
-    "format": "{}",
-    "on-click": "pkill -USR1 devchron"
-  },
-  "custom/pomo":{
-    "exec": "tomat status",
-    "interval": 1,
+  "custom/tomat": {
+    "exec": "~/dotfiles/waybar/scripts/tomat-waybar.sh",
     "return-type": "json",
     "format": "{}",
-    "on-click": "tomat toggle",
-    "on-click-right": "tomat skip"
-  },
-  "custom/pomo-bar":{
-    "exec": "~/dotfiles/waybar/tomat-bar.sh",
-    "return-type": "json",
-    "interval": "once",
-    "restart-interval": 5
+    "interval": 1,
+    "on-click":        "tomat toggle",
+    "on-click-right":  "tomat stop || tomat start",
+    "on-click-middle": "tomat skip"
   },
   "custom/weather_time": {
     "format": "{}",
