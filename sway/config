@@ -4,7 +4,6 @@ exec_always autotiling
 exec waybar
 exec dunst
 exec nm-applet
-exec redshift
 
 exec export GDK_DPI_SCALE=1
 exec export GDK_BACKEND=wayland 
@@ -13,6 +12,9 @@ exec export QT_QPA_PLATFORM=wayland
 exec_always systemctl --user import-environment XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
 
+exec_always sunsetr
+exec_always $task_script 
+
 # MACROS
 
 set $term kitty
@@ -20,6 +22,7 @@ set $menu rofi -show drun -show-icons
 #set $open-tabs rofi -modi combi -combi-mod window -show combi -show-icons -matching 
 set $open-tabs rofi -show window -no-config -show-icons -theme "~/dotfiles/rofi/show_open_windows.rasi"
 set $mod Mod4
+set $task_script "kitty /usr/bin/python3 /home/ktasc/dotfiles/sway/scripts/obsidian-task-widget.py"
 
 # KEY BINDS
 bindsym $mod+d exec $menu
@@ -27,6 +30,7 @@ bindsym $mod+Tab exec $open-tabs
 bindsym $mod+c kill
 bindsym $mod+q exec $term
 bindsym $mod+Shift+r exec swaymsg reload && killall waybar && waybar
+bindsym $mod+t exec $task_script 
 
 #--floating window interaction
 floating_modifier $mod normal

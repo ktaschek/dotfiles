@@ -1,0 +1,15 @@
+backend="wayland"
+transition_mode="geo"
+
+smoothing=true
+startup_duration = 0.5
+shutdown_duration = 0.5
+
+night_temp = 4000
+day_temp = 6500
+night_gamma = 90
+day_gamma = 100
+update_interval = 300
+
+latitude = 37.5
+longitude = -122.5
