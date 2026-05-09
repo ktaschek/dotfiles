@@ -98,24 +98,67 @@ load_tasks() {
 }
 
 get_sorted_indices() {
-    local -a pairs=()
-    for i in "${!TITLES[@]}"; do 
-        [[ "${STATUSES[$i]}" == "done" ]] && continue
-        local date="${SCHEDULED[$i]:-9999-99-99}"
-        date="${date%%T*}"
-        pairs+=("$date $i")
+    local today
+    today=$(date +%Y-%m-%d)
+ 
+    local -a overdue_pairs=()
+    local -a inprog_pairs=()
+    local -a rest_pairs=()
+    local -a done_but_not_due_pairs=()
+ 
+    for i in "${!TITLES[@]}"; do
+        local status="${STATUSES[$i]}"
+ 
+        # Skip done tasks that are past their effective date
+        if [[ "$status" == "done" ]]; then
+            local eff
+            eff=$(_effective_date "$i")
+            [[ "$eff" < "$today" ]] && continue
+        fi
+ 
+        local edate
+        edate=$(_effective_date "$i")
+ 
+        if [[ "$status" != "done" ]]; then
+            if is_overdue "$i"; then
+                overdue_pairs+=("$edate $i")
+            else
+                done_but_not_due_pairs+=("$edate $i")
+            fi
+        elif [[ "$status" == "in-progress" ]]; then
+            inprog_pairs+=("$edate $i")
+        else
+            rest_pairs+=("$edate $i")
+        fi
     done
+ 
+    # Print each bucket sorted by effective date
+    printf '%s\n' "${done_but_not_due_pairs[@]}" | sort | awk 'NF>=2{print $2}'
+    printf '%s\n' "${overdue_pairs[@]}" | sort | awk 'NF>=2{print $2}'
+    printf '%s\n' "${inprog_pairs[@]}"  | sort | awk 'NF>=2{print $2}'
+    printf '%s\n' "${rest_pairs[@]}"    | sort | awk 'NF>=2{print $2}'
+}
 
-    printf '%s\n' "${pairs[@]}" | sort | awk '{print $2}'
+_effective_date() {
+    local idx="$1"
+    local due="${DUE_DATES[$idx]}"
+    local sched="${SCHEDULED[$idx]}"
+    if [[ -n "$due" ]]; then
+        echo "${due%%T*}"
+    elif [[ -n "$sched" ]]; then
+        echo "${sched%%T*}"
+    else
+        echo "9999-99-99"
+    fi
 }
 
 is_overdue() {
-    local raw="$1"
+    local idx="$1"
+    local raw="${DUE_DATES[$idx]:-${SCHEDULED[$idx]}}"
     [[ -z "$raw" ]] && return 1
     local date="${raw%%T*}"
     [[ "$date" < "$(date +%Y-%m-%d)" ]]
 }
-
 
 build_children_map() {
     for j in "${!PROJECTS[@]}"; do
