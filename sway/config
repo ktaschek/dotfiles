@@ -137,6 +137,15 @@ input type:pointer {
 input type:keyboard {
     xkb_layout us
 }
+#--disable razer :O
+inout "5426:136:Razer_Razer_Basilisk_Ultimate_Dongle_Keyboard" { events disabled }
+
+#--touchscrean
+input "1118:2435:IPTSD_Virtual_Touchscreen_045E:0983" { events disabled }
+input "1118:2435:IPTSD_Virtual_Stylus_045E:0983" { events disabled }
+input "1118:2435:IPTS_045E:0983_Touchscreen" { events disabled }
+input "1118:2435:IPTS_045E:0983" { events disabled }
+input "1118:2435:IPTS_045E:0983_Stylus" { events disabled }
 
 # STYLES
 

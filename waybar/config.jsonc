@@ -12,6 +12,7 @@
     "custom/weather",
     "clock",
     "custom/idle_status",
+    "custom/artbg"
   ],
   "modules-center": ["sway/workspaces"],
   "modules-right": [
@@ -48,6 +49,13 @@
   },
    "sway/window": {
     "max-length": 55,
+  },
+  "custom/artbg": {
+    "exec": "~/Projects/artbg/waybarartbg.sh",
+    "return-type": "json",
+    "format": "| {}",
+    "interval": 5,
+    "tooltip": true
   },
   "custom/tomat": {
     "exec": "~/dotfiles/waybar/scripts/tomat-waybar.sh",

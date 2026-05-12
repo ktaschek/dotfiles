@@ -4,10 +4,11 @@
 # Rofi wallpaper picker with live preview + folder navigation:
 #   - Folders appear at top with a 🖿 prefix, click to enter
 #   - ".." appears when inside a subfolder to go back
-#   - Remembers the current wallpaperw
+#   - Remembers the current wallpaper
 #   - Switches to workspace 10 for a clean view
 #   - Applies each selection live so you can see it
 #   - Confirms or reverts on exit
+#   - Special handling for folder 'art': uses artbg.py switch directly
 # ─────────────────────────────────────────────
 
 WALLPAPER_DIR="$HOME/dotfiles/sway/bgs"
@@ -117,7 +118,7 @@ while true; do
     )
     ROFI_EXIT=$?
 
-    # Esc or empty → revert and quit
+    # Esc or empty → revert aTnd quit
     if [[ $ROFI_EXIT -eq 1 ]] || [[ -z "$CHOICE" ]]; then
         restore
         restore_workspace
@@ -150,6 +151,23 @@ while true; do
     CHOSEN_PATH="$CURRENT_DIR/$CHOICE_NAME"
     [[ ! -f "$CHOSEN_PATH" ]] && continue
 
+    # ----- SPECIAL CASE: inside folder named "art" -----
+    if [[ "$(basename "$CURRENT_DIR")" == "art" ]]; then
+        # Extract filename without extension
+        imgname=$(basename "$CHOSEN_PATH")
+        imgname_noext="${imgname%.*}"
+        # Use artbg.py to switch wallpaper immediately
+        python3 ~/Projects/artbg/artbg.py switch "$imgname_noext"
+        if [[ $? -eq 0 ]]; then
+            notify-send "Wallpaper" "Set via artbg: $imgname_noext"
+        else
+            notify-send -u critical "Wallpaper" "artbg.py switch failed"
+        fi
+        restore_workspace
+        exit 0
+    fi
+
+    # ----- Normal behaviour (preview & confirm) -----
     if [[ "$CHOSEN_PATH" == "$PREVIEW_APPLIED" ]]; then
         ln -sf "$CHOSEN_PATH" "$LINK"
         swaymsg reload
