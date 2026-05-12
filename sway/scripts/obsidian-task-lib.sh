@@ -136,7 +136,8 @@ get_sorted_indices() {
     printf '%s\n' "${done_but_not_due_pairs[@]}" | sort | awk 'NF>=2{print $2}'
     printf '%s\n' "${overdue_pairs[@]}" | sort | awk 'NF>=2{print $2}'
     printf '%s\n' "${inprog_pairs[@]}"  | sort | awk 'NF>=2{print $2}'
-    printf '%s\n' "${rest_pairs[@]}"    | sort | awk 'NF>=2{print $2}'
+    printf '%s\n' "${rest_pairs[@]}"    | sort | awk 'NF>=2{print $2}'printf '%s\n' "${inprog_pairs[@]}"  | sort | awk 'NF>=2{print $2}'
+
 }
 
 _effective_date() {

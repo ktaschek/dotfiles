@@ -1,22 +1,4 @@
-# {
-#   "text": "🍅 24:30 ▶",
-#   "tooltip": "Work (1/4) - 25.0min",
-#   "class": "work",
-#   "percentage": 2.0
-# }
-
 #!/usr/bin/env bash
-# tomat-waybar.sh — Custom waybar output for tomat pomodoro timer
-#
-# Waybar config example:
-#   "custom/tomat": {
-#     "exec": "~/.config/waybar/scripts/tomat-waybar.sh",
-#     "return-type": "json",
-#     "interval": 1,
-#     "on-click": "tomat toggle",
-#     "on-click-right": "tomat stop || tomat start",
-#     "on-click-middle": "tomat skip"
-#   }
 
 # ── Block bar constants ────────────────────────────────────────────────────────
 # 8 sub-steps per full block: █ ▉ ▊ ▋ ▌ ▍ ▎ ▏ -
@@ -30,7 +12,7 @@ STATUS=$(/usr/bin/tomat status --output waybar 2>/dev/null)
 
 if [[ -z "$STATUS" || "$STATUS" == *"error"* ]]; then
   # Daemon not running or no session — show idle state
-  printf '{"text": "  ──── ────  ⏹ ", "tooltip": "Tomat idle — right-click to start", "class": "idle"}\n'
+  printf '{"text": "  ──── ────  ⏵ ", "tooltip": "Tomat idle — right-click to start daemon", "class": "idle"}\n'
   exit 0
 fi
 
@@ -48,22 +30,23 @@ case "$CLASS" in
   work-paused)    PHASE="Focus" ;;
   break)          PHASE="Break" ;;
   break-paused)   PHASE="Break" ;;
-  long-break)     PHASE="Long Break" ;;
-  long-break-paused) PHASE="Long Break" ;;
+  long-break)     PHASE="Long " ;;
+  long-break-paused) PHASE="Long " ;;
+  idle)           PHASE="Idle " ;;
   *)              PHASE="Tomat" ;;
 esac
 
 # ── Determine pause/play icon ──────────────────────────────────────────────────
-if [[ "$STATE_ICON" == "⏸" ]]; then
-  CTRL_ICON="⏵"   # show play (click to resume)
-  IS_PAUSED=true
-else
-  CTRL_ICON="⏸"   # show pause (click to pause)
+if [[ "$STATE_ICON" == "⏵" ]]; then
+  CTRL_ICON="⏸" 
   IS_PAUSED=false
+else
+  CTRL_ICON="⏵" 
+  IS_PAUSED=true
 fi
 
 # ── Compute block progress bar ─────────────────────────────────────────────────
-PCT_INT=${PCT%.*}   # truncate decimal
+PCT_INT=${PCT%.*} 
 REMAINING_PCT=$(( 100 - PCT_INT ))
 # clamp
 (( REMAINING_PCT < 0 )) && REMAINING_PCT=0
@@ -86,7 +69,7 @@ done
 
 # ── Build output string ────────────────────────────────────────────────────────
 
-OUTPUT_TEXT="${PHASE} | ${BAR} | ${CTRL_ICON}  ⏹ "
+OUTPUT_TEXT="| ${BAR} ${PHASE} | ${CTRL_ICON} |"
 
 # ── Emit waybar JSON ───────────────────────────────────────────────────────────
 printf '{"text": "%s", "tooltip": "%s", "class": "%s", "percentage": %s}\n' \

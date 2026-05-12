@@ -11,6 +11,7 @@ exec export QT_SCALE_FACTOR=1
 exec export QT_QPA_PLATFORM=wayland
 exec_always systemctl --user import-environment XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
 exec_always dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP=sway
+exec_always fcitx5 -d
 
 exec_always sunsetr
 exec_always $task_script 
@@ -132,6 +133,10 @@ input type:pointer {
 	pointer_accel 0.5
 }
 
+#--keyboard input
+input type:keyboard {
+    xkb_layout us
+}
 
 # STYLES
 

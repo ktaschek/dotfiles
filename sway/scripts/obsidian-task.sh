@@ -290,9 +290,6 @@ main() {
             exit 0
         fi
     fi
-
-    bash ~/dotfiles/sway/scripts/obsidian-task.sh
-    exit 0
 }
 
 [[ "${BASH_SOURCE[0]}" == "$0" ]] && main

@@ -45,38 +45,16 @@ tooltip {
   opacity: 1;
  }
 
- /* --- Sub-Groups ---*/
-
-#left1{
-  border-radius: 8px;
-  opacity: 1;
-  border: 0.5px solid alpha(@foreground, 0.8);
-  color: @foreground;
-  background-color: alpha(@background, 0.9);
-  margin-right: 2px;
-}
-
-#left2{
-  color: @foreground;
-  border-radius: 8px;
-  opacity: 1;
-  border: 0.5px solid alpha(@foreground, 0.8);
-  background-color: alpha(@background, 0.9);
-  margin-right: 2px;
-}
-
-#left3{
-}
 
  /* --- Modules ---*/
+ .modules-left {
+  padding-left: 10px;
+ }
 
 .modules-right {
-  color: @foreground;
   border-radius: 8px;
   opacity: 1;
-  border: 0.5px solid alpha(@foreground, 0.8);
-  background-color: alpha(@background, 0.9);
-  padding-right: 4px;
+  padding-right: 10px;
  }
 
 
@@ -87,7 +65,7 @@ tooltip {
   background-color: alpha(@background, 1);
   opacity: 0.95;
   margin: 0px;
-  padding: 1px 1px 1px;
+  padding: 2px 2px 2px;
 }
 
 #workspaces button {

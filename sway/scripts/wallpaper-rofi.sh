@@ -1,16 +1,17 @@
 #!/bin/bash
 # ─────────────────────────────────────────────
 # wallpaper-rofi.sh
-# Rofi wallpaper picker with live preview:
-#   - Remembers the current wallpaper
+# Rofi wallpaper picker with live preview + folder navigation:
+#   - Folders appear at top with a 🖿 prefix, click to enter
+#   - ".." appears when inside a subfolder to go back
+#   - Remembers the current wallpaperw
 #   - Switches to workspace 10 for a clean view
 #   - Applies each selection live so you can see it
 #   - Confirms or reverts on exit
 # ─────────────────────────────────────────────
 
-WALLPAPER_DIR="$HOME/dotfiles/sway/bgs/"   # ← change this
+WALLPAPER_DIR="$HOME/dotfiles/sway/bgs"
 LINK="$WALLPAPER_DIR/.wallpaper"
-SWITCHER="$HOME/.config/sway/theme-switcher.sh"
 
 # ── Supported image extensions ────────────────
 IMAGE_EXTS="jpg|jpeg|png|gif|webp|bmp|tiff"
@@ -20,14 +21,15 @@ ORIGINAL_WALLPAPER=$(readlink -f "$LINK" 2>/dev/null || echo "")
 ORIGINAL_WORKSPACE=$(swaymsg -t get_workspaces | \
     python3 -c "import sys,json; ws=json.load(sys.stdin); print(next(w['name'] for w in ws if w['focused']))")
 
-# ── Helper: apply a wallpaper without writing the symlink permanently ─
+CURRENT_DIR="$WALLPAPER_DIR"
+PREVIEW_APPLIED=""
+
 apply_preview() {
     local img="$1"
     ln -sf "$img" "$LINK"
     swaymsg reload
 }
 
-# ── Helper: restore original wallpaper ───────
 restore() {
     if [[ -n "$ORIGINAL_WALLPAPER" ]]; then
         ln -sf "$ORIGINAL_WALLPAPER" "$LINK"
@@ -42,67 +44,80 @@ restore_workspace() {
     swaymsg "workspace $ORIGINAL_WORKSPACE"
 }
 
-# ── Build list of wallpaper names ─────────────
-mapfile -t IMAGES < <(
-    find "$WALLPAPER_DIR" -maxdepth 1 -type f \
-        | grep -iE "\.($IMAGE_EXTS)$" \
-        | sort
-)
+# ── Build display list for current dir ────────
+build_list() {
+    local dir="$1"
+    local entries=()
 
-if [[ ${#IMAGES[@]} -eq 0 ]]; then
-    notify-send "Wallpaper Picker" "No images found in $WALLPAPER_DIR"
-    exit 1
-fi
+    # ".." back entry if we're inside a subfolder
+    if [[ "$dir" != "$WALLPAPER_DIR" ]]; then
+        entries+=("..")
+    fi
 
-# Build display names (basenames) for rofi
-NAMES=()
-for img in "${IMAGES[@]}"; do
-    NAMES+=("$(basename "$img")")
-done
+    # Folders first (excluding hidden)
+    while IFS= read -r -d '' folder; do
+        name=$(basename "$folder")
+        entries+=("🖿 $name")
+    done < <(find "$dir" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -print0 | sort -z)
+
+    # Image files
+    while IFS= read -r -d '' img; do
+        name=$(basename "$img")
+        entries+=("$name")
+    done < <(find "$dir" -mindepth 1 -maxdepth 1 -type f -print0 | grep -ziE "\.($IMAGE_EXTS)$" | sort -z)
+
+    printf '%s\n' "${entries[@]}"
+}
 
 # ── Switch to workspace 10 for preview ────────
 swaymsg "workspace 10"
 
-# ── Run rofi ──────────────────────────────────
-# We run rofi in a loop so we can apply a live preview on each keystroke.
-# rofi doesn't have a native on-change callback, so we use dmenu mode
-# with a small trap: we call rofi once and act on the final selection.
-#
-# For true live preview we use a fifo + rofi's -run-command with a wrapper.
-# The cleanest approach that works without a custom rofi plugin:
-# run rofi, intercept selection, preview it, re-run until confirmed.
-
-SELECTED=""
-PREVIEW_APPLIED=""
-
 SELECTED_ROW=0
 
 while true; do
-    # Mark current wallpaper in list
+    mapfile -t RAW_ENTRIES < <(build_list "$CURRENT_DIR")
+
+    if [[ ${#RAW_ENTRIES[@]} -eq 0 ]]; then
+        notify-send "Wallpaper Picker" "No images or folders found in $CURRENT_DIR"
+        restore
+        restore_workspace
+        exit 1
+    fi
+
     DISPLAY_LIST=""
-    for name in "${NAMES[@]}"; do
-        full="$WALLPAPER_DIR/$name"
-        if [[ "$full" == "$PREVIEW_APPLIED" ]]; then
-            DISPLAY_LIST+="▶ $name"$'\n'
-        elif [[ "$full" == "$ORIGINAL_WALLPAPER" && -z "$PREVIEW_APPLIED" ]]; then
-            DISPLAY_LIST+="▶ $name"$'\n'
+    for entry in "${RAW_ENTRIES[@]}"; do
+        if [[ "$entry" == ".." || "$entry" == 🖿* ]]; then
+            DISPLAY_LIST+="  $entry"$'\n'
         else
-            DISPLAY_LIST+="  $name"$'\n'
+            full="$CURRENT_DIR/$entry"
+            if [[ "$full" == "$PREVIEW_APPLIED" ]]; then
+                DISPLAY_LIST+="▶ $entry"$'\n'
+            elif [[ "$full" == "$ORIGINAL_WALLPAPER" && -z "$PREVIEW_APPLIED" ]]; then
+                DISPLAY_LIST+="▶ $entry"$'\n'
+            else
+                DISPLAY_LIST+="  $entry"$'\n'
+            fi
         fi
     done
+
+    # Relative path label for the rofi prompt
+    REL_PATH="${CURRENT_DIR#$WALLPAPER_DIR}"
+    REL_PATH="${REL_PATH#/}"
+    PROMPT="${REL_PATH:-wallpapers}"
 
     CHOICE=$(printf "%s" "$DISPLAY_LIST" | \
         rofi \
             -dmenu \
             -i \
-            -p "Wallpaper" \
-            -mesg "↵ Preview  |  ↵ again = Confirm  |  Esc = Revert" \
+            -p "$PROMPT" \
+            -mesg "↵ Preview / Enter folder  |  ↵ again = Confirm  |  Esc = Revert" \
             -format 'i:s' \
             -selected-row "$SELECTED_ROW" \
             -no-fixed-num-lines \
     )
     ROFI_EXIT=$?
 
+    # Esc or empty → revert and quit
     if [[ $ROFI_EXIT -eq 1 ]] || [[ -z "$CHOICE" ]]; then
         restore
         restore_workspace
@@ -110,15 +125,29 @@ while true; do
         exit 0
     fi
 
-    # Parse index and name from "i:s" format
-    SELECTED_ROW="${CHOICE%%:*}"          # everything before first colon
-    CHOICE_NAME="${CHOICE#*:}"            # everything after first colon
+    SELECTED_ROW="${CHOICE%%:*}"
+    CHOICE_NAME="${CHOICE#*:}"
 
-    # Strip leading marker (▶ or spaces)
     CHOICE_NAME="${CHOICE_NAME#▶ }"
     CHOICE_NAME="${CHOICE_NAME#  }"
-    CHOSEN_PATH="$WALLPAPER_DIR/$CHOICE_NAME"
 
+    # ── Navigate up ───────────────────────────
+    if [[ "$CHOICE_NAME" == ".." ]]; then
+        CURRENT_DIR=$(dirname "$CURRENT_DIR")
+        SELECTED_ROW=0
+        continue
+    fi
+
+    # ── Navigate into folder ──────────────────
+    if [[ "$CHOICE_NAME" == 🖿* ]]; then
+        FOLDER_NAME="${CHOICE_NAME#🖿 }"
+        CURRENT_DIR="$CURRENT_DIR/$FOLDER_NAME"
+        SELECTED_ROW=0
+        continue
+    fi
+
+    # ── Image selected ────────────────────────
+    CHOSEN_PATH="$CURRENT_DIR/$CHOICE_NAME"
     [[ ! -f "$CHOSEN_PATH" ]] && continue
 
     if [[ "$CHOSEN_PATH" == "$PREVIEW_APPLIED" ]]; then
