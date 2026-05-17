@@ -1,0 +1,69 @@
+/* ==========================================================================
+   Ayu Mirage — color palette only, no structure
+   Based on: https://github.com/ayu-theme/ayu-colors
+   Same variable structure as gruvbox-dark.rasi
+   ========================================================================== */
+
+* {
+    /* ── Raw palette ──────────────────────────────────────────────────── */
+    ayu-bg0:          #1f2430bb;   /* editor background        */
+    ayu-bg0-soft:     #242936bb;   /* slightly lighter bg      */
+    ayu-bg0-hard:     #1a1f2ebb;   /* deeper bg / gutters      */
+    ayu-bg1:          #2d3347bb;   /* panel / sidebar bg       */
+    ayu-bg2:          #343d4ebb;   /* selection bg             */
+    ayu-bg3:          #3d4757bb;   /* highlight bg (mid)       */
+    ayu-bg4:          #4f5b6ebb;   /* comment / inactive       */
+
+    ayu-fg0:          #cccac2;   /* primary text             */
+    ayu-fg1:          #b8b5ac;   /* secondary text           */
+    ayu-fg2:          #a4a19a;
+    ayu-fg3:          #8f8d87;
+    ayu-fg4:          #707a8c;   /* subtle / muted           */
+
+    ayu-gray:         #707a8c;
+
+    ayu-red-dark:     #f28779;   /* error / urgent           */
+    ayu-red-light:    #ff8f75;
+    ayu-green-dark:   #87d96c;   /* strings                  */
+    ayu-green-light:  #a2e57b;
+    ayu-yellow-dark:  #ffd173;   /* active / keywords        */
+    ayu-yellow-light: #ffe6a0;
+    ayu-blue-dark:    #5ccfe6;   /* functions                */
+    ayu-blue-light:   #73d7f5;
+    ayu-purple-dark:  #dfbfff;   /* constants                */
+    ayu-purple-light: #ecd8ff;
+    ayu-teal-dark:    #95e6cb;   /* types                    */
+    ayu-teal-light:   #adf0d8;
+    ayu-orange-dark:  #ffad66;   /* operators                */
+    ayu-orange-light: #ffc680;
+
+    /* ── Semantic roles (same names as gruvbox-dark.rasi) ────────────── */
+    background:                  @ayu-bg0;
+    foreground:                  @ayu-fg0;
+    border-color:                @ayu-gray;
+    separatorcolor:              @ayu-bg3;
+    scrollbar-handle:            @ayu-bg4;
+
+    normal-background:           @ayu-bg0;
+    normal-foreground:           @ayu-fg0;
+    alternate-normal-background: @ayu-bg0-soft;
+    alternate-normal-foreground: @ayu-fg0;
+    selected-normal-background:  @ayu-bg3;
+    selected-normal-foreground:  @ayu-fg0;
+
+    active-background:           @ayu-yellow-dark;
+    active-foreground:           @ayu-bg0;
+    alternate-active-background: @ayu-yellow-dark;
+    alternate-active-foreground: @ayu-bg0;
+    selected-active-background:  @ayu-yellow-light;
+    selected-active-foreground:  @ayu-bg0;
+
+    urgent-background:           @ayu-red-dark;
+    urgent-foreground:           @ayu-bg0;
+    alternate-urgent-background: @ayu-red-dark;
+    alternate-urgent-foreground: @ayu-bg0;
+    selected-urgent-background:  @ayu-red-light;
+    selected-urgent-foreground:  @ayu-bg0;
+}
+
+@import "custom-common.rasinc"

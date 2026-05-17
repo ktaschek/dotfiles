@@ -1,8 +1,67 @@
+* {
+}
 
-//@theme "/usr/share/rofi/themes/gruvbox-dark-soft.rasi"
+listview {
+    scrollbar: false;
+    border: 1px 0 0 0 solid;
+}
 
+window {
+    width: 1200px;
+    border: 1px;
+    border-radius: 5px;
+    border-color: @separatorcolor;
+    padding: 10px;
+}
 
+// prompt {
 
-//@theme "/usr/share/rofi/themes/arthur.rasi"
+// }
 
-@theme "/usr/share/rofi/themes/gruvbox-dark.rasi"
+// inputbar {
+
+// }
+
+// entry {
+
+// }
+
+// mainbox {
+
+// }
+
+// element {
+
+// }
+
+// element normal.normal {
+
+// }
+
+// element alternative.normal {
+
+// }
+
+// element selected.active {
+
+// }
+
+// element selected.normal {
+
+// }
+
+//@import "/usr/share/rofi/themes/ayu-mirage.rasi"
+
+//@import "/usr/share/rofi/themes/gruvbox-dark.rasi"
+
+//@import "/usr/share/rofi/themes/ayu-mirage.rasi"
+
+//@import "/usr/share/rofi/themes/gruvbox-dark.rasi"
+
+//@import "/usr/share/rofi/themes/gruvbox-dark.rasi"
+
+//@import "/usr/share/rofi/themes/gruvbox-dark.rasi"
+
+//@import "/usr/share/rofi/themes/ayu-mirage.rasi"
+
+@import "/home/ktasc/dotfiles/rofi/themes/ayu-mirage.rasi"
